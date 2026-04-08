@@ -1,4 +1,4 @@
-# # Proyecto de Servicios en Red - Infraestructura Web Segura
+# Proyecto de Servicios en Red - Infraestructura Web Segura
 
 En este repositorio se encuentran los archivos de configuración de mi proyecto de kuberbetes. El objetivo de la práctica ha sido desplegar una aplicación web en Kubernetes, la aplicación consiste en una tienda de vinilos donde se pueden añadir discos a una base de datos MySQL y ver el inventario.
 Primero hemos trabajado en local con Minikube para hacer pruebas, y después lo hemos desplegado en AWS EKS.
@@ -10,6 +10,7 @@ Creamos los archivos YAML para cada servicio:
 * **PHP (backend)**
 * **NGINX (frontend)**
 * **ConfigMap con el código de la aplicación**
+
 Al principio tenia pensado subir el proyecto charneco donde habiamos creado una pagina web en localhost (XAMPP) con mysql y php, pero por problemas del pasado perdi dicha practica, pero aun asi he realizado una version simplificada del proyecto.
 Y mas adelante si hay tiempo me gustaria aplicarlo a mi proyecto de TFG que estoy realizacion con Hector
 
