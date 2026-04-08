@@ -52,6 +52,8 @@ Para demostrar que la conexión es segura y no se pueden robar las contraseñas,
 Configuramos el servicio de NGINX como tipo LoadBalancer, lo que nos dio una URL pública de AWS.
 Gracias a esto pudimos acceder a la aplicación desde el navegador.
 
+![texto alternativo descriptivo](imagenes/web.PNG)
+
 ## 3. HTTPS
 En este proyecto se ha implementado HTTPS utilizando NGINX con un certificado TLS.
 
