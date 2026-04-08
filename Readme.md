@@ -35,10 +35,12 @@ kubectl apply -f archivo.yml
 ```
 ### Estado de los pods
 Como se puede observar, todos los pods están en estado Running, lo que indica que los servicios están funcionando correctamente.
+
 ![texto alternativo descriptivo](imagenes/pods.PNG)
 
 ### Servicios desplegados
 Aquí se puede ver que el servicio de NGINX está configurado como LoadBalancer, lo que permite acceder desde internet mediante una IP pública de AWS.
+
 ![texto alternativo descriptivo](imagenes/services.PNG)
 
 ### Problema volumen
