@@ -33,6 +33,14 @@ Una vez realizada la conexion con mi cluster, procedemos a subir los archivos ya
 ```bash
 kubectl apply -f archivo.yml
 ```
+### Estado de los pods
+Como se puede observar, todos los pods están en estado Running, lo que indica que los servicios están funcionando correctamente.
+![texto alternativo descriptivo](imagenes/pods.PNG)
+
+### Servicios desplegados
+Aquí se puede ver que el servicio de NGINX está configurado como LoadBalancer, lo que permite acceder desde internet mediante una IP pública de AWS.
+![texto alternativo descriptivo](imagenes/services.PNG)
+
 ### Problema volumen
 En su momento tambien se hablo en clase, a la hora de crear un volumen con una practica de las tuyas tuvimos problemas ya que no podiamos crear volumenes persistentes(se queda en pending), e investigando un poco era debido a que AWS no te da permisos para hacerlo, por lo que para la practica no es tan necesario, pero en un entorno real si lo es
 
@@ -58,10 +66,11 @@ Para verificar esto, se ha realizado una captura de tráfico con Wireshark, dond
 En un entorno real, la solución adecuada sería utilizar un dominio propio junto con AWS Certificate Manager o Let's Encrypt para disponer de un certificado válido y reconocido.
 
 ### Verificacion con WIRESHARK
-He descargado en la maquina virtual el servicio wireshark y he filtrado el trafico para ver si los datos viajan cifrados (TLS), ya que aunque aya tenido que recurrir a un certificado autofirmado podemos ver que la informacion no viaja en texto plano
+He descargado en la maquina virtual el servicio wireshark y he filtrado el trafico para ver si los datos viajan cifrados (TLS), ya que aunque hhaya tenido que recurrir a un certificado autofirmado podemos ver que la informacion no viaja en texto plano
 
-En la captura de Wireshark se puede observar el protocolo TLSv1.3, incluyendo mensajes como “Client Hello” y “Server Hello”, lo que demuestra que la comunicación se realiza mediante HTTPS. Esto confirma que los datos viajan cifrados y no en texto plano.
 ![texto alternativo descriptivo](imagenes/Wireshark.PNG)
+En la captura de Wireshark se puede observar el protocolo TLSv1.3, incluyendo mensajes como “Client Hello” y “Server Hello”, lo que demuestra que la comunicación se realiza mediante HTTPS. Esto confirma que los datos viajan cifrados y no en texto plano.
+
 
 
 
