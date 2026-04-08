@@ -61,7 +61,7 @@ En un entorno real, la solución adecuada sería utilizar un dominio propio junt
 He descargado en la maquina virtual el servicio wireshark y he filtrado el trafico para ver si los datos viajan cifrados (TLS), ya que aunque aya tenido que recurrir a un certificado autofirmado podemos ver que la informacion no viaja en texto plano
 
 En la captura de Wireshark se puede observar el protocolo TLSv1.3, incluyendo mensajes como “Client Hello” y “Server Hello”, lo que demuestra que la comunicación se realiza mediante HTTPS. Esto confirma que los datos viajan cifrados y no en texto plano.
-![texto alternativo descriptivo](imagenes/wireshark.PNG)
+![texto alternativo descriptivo](imagenes/Wireshark.PNG)
 
 
 
