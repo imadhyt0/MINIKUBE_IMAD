@@ -20,6 +20,8 @@ Al principio tenia pensado subir el proyecto charneco donde habiamos creado una 
 Y mas adelante si hay tiempo me gustaria aplicarlo a mi proyecto de TFG que estoy realizacion con Hector
 
 
+
+
 ## 2. Paso a AWS EKS
 Una vez funcionando en Minikube, creamos el clúster en AWS EKS.
 Con tu documentacion del proceso de crear un cluster en AWS con nodos documentada ha sido muy sencillo realizar esa parte del proceso y ya una vez que han sido creados los nodos solo faltaba la parte de poner los credenciales de aws y el siguiente comando
@@ -36,83 +38,35 @@ En su momento tambien se hablo en clase, a la hora de crear un volumen con una p
 
 Para demostrar que la conexión es segura y no se pueden robar las contraseñas, en el vídeo realizo un snifado de red con `tcpdump` donde se ve que las cabeceras y el tráfico están totalmente cifrados.
 
-![texto alternativo descriptivo](Evidencias/captura_snifado_https.PNG)
+### Acceso a la aplicación
+Configuramos el servicio de NGINX como tipo LoadBalancer, lo que nos dio una URL pública de AWS.
+Gracias a esto pudimos acceder a la aplicación desde el navegador.
 
-## 3. Servidores Web y Sitios Virtuales
-En lugar de instalar los servicios a mano, he usado `docker-compose` para levantar los contenedores. Como servidor principal he elegido Apache, ya que sus módulos me permiten configurarlo fácilmente como Proxy Inverso.
+## 3. HTTPS
+En este proyecto se ha implementado HTTPS utilizando NGINX con un certificado TLS.
 
-He creado varios sitios virtuales bajo el mismo dominio. Apache hace de "puerta de entrada" y redirige el tráfico dependiendo de la ruta que pongas en el navegador:
-* Si entras a `/php`, te manda al contenedor que procesa código PHP.
-* Si entras a `/tomcat`, te manda al contenedor con el entorno Java.
-* El diseño de las webs es muy simple (muestran la hora y la versión) porque me he centrado en que el enrutamiento de la infraestructura funcione perfectamente, más que en la decoración.
+Inicialmente se intentó utilizar certificados válidos mediante AWS Certificate Manager (ACM), pero no fue posible debido a las limitaciones de AWS Academy, ya que no se dispone de control sobre DNS ni acceso a servicios como Route53 necesarios para validar el dominio.
+
+También se intentó usar un dominio externo (DuckDNS), pero no fue viable porque no permite configurar los registros DNS necesarios para la validación del certificado en AWS.
+
+Por este motivo, se optó por utilizar un certificado autofirmado configurado directamente en NGINX.
+
+Aunque el navegador indica que la conexión no es segura, esto se debe únicamente a que el certificado no está firmado por una autoridad certificadora reconocida. Sin embargo, el cifrado HTTPS funciona correctamente, ya que el tráfico entre el cliente y el servidor está protegido mediante TLS.
+
+Para verificar esto, se ha realizado una captura de tráfico con Wireshark, donde se puede observar que los datos viajan cifrados y no son visibles en texto plano.
+
+En un entorno real, la solución adecuada sería utilizar un dominio propio junto con AWS Certificate Manager o Let's Encrypt para disponer de un certificado válido y reconocido.
+
+### Verificacion con WIRESHARK
+He descargado en la maquina virtual el servicio wireshark y he filtrado el trafico para ver si los datos viajan cifrados (TLS), ya que aunque aya tenido que recurrir a un certificado autofirmado podemos ver que la informacion no viaja en texto plano
+
+En la captura de Wireshark se puede observar el protocolo TLSv1.3, incluyendo mensajes como “Client Hello” y “Server Hello”, lo que demuestra que la comunicación se realiza mediante HTTPS. Esto confirma que los datos viajan cifrados y no en texto plano.
+![texto alternativo descriptivo](imagenes/wireshark.PNG)
 
 
-## 4. Autenticación y Control de Acceso (LDAP)
-He protegido la ruta `/privado` del servidor. Cuando intentas entrar, Apache te frena y te pide un usuario y una contraseña.
 
-Para validar esas credenciales, Apache se comunica por la red interna con el contenedor de OpenLDAP que tenemos en la máquina de la subred privada. Si pones un usuario que existe en la base de datos (por ejemplo, "susana"), el servidor te da acceso.
-
-## 5. Monitorización del Servicio
-Para comprobar que los contenedores están funcionando y no se han caído, he integrado Prometheus y Grafana.
-Prometheus va recogiendo los datos de los contenedores por detrás, y Grafana nos los muestra en un panel visual. He configurado gráficos donde se puede ver en tiempo real cómo suben las peticiones de red cuando interactuamos con el servidor.
-
-![texto alternativo descriptivo](Evidencias/captura_grafana.PNG)
-
----
-
-## Vídeo Demostrativo
+## 4. Vídeo Demostrativo
 En el siguiente enlace dejo el vídeo donde explico paso a paso el funcionamiento de todo este montaje, probando todas las casuísticas que se pedían en la práctica:
 
 **[[PONER AQUÍ EL ENLACE AL VÍDEO](https://drive.google.com/file/d/1pg5p7hHuqL6YbKSF11ewI2rsxrvGCFjw/view?usp=sharing)]**
 
-## Vídeo respondiendo a las preguntas del criterio a
-En el primer video se me ha olvidado contestar las pregundas del criterio a, asi que te adjunto otro cortito respondiendo a las preguntas:
-**[[PONER AQUÍ EL ENLACE AL VÍDEO](https://drive.google.com/file/d/12hV3QgfQ4Hq_wwpJJAssn_ETvhA7z5g-/view?usp=sharing)]**
-
-En este repositorio se encuentran los archivos de configuración de mi proyecto final. El objetivo de la práctica ha sido desplegar una infraestructura de servicios web segura y monitorizada utilizando la nube de AWS y contenedores Docker.
-
-## 1. Topología base (Terraform y AWS)
-Toda la infraestructura en Amazon Web Services la he levantado utilizando Terraform. He configurado dos VPCs conectadas mediante peering para separar los servicios:
-* **Subred pública:** Aquí está la máquina principal que tiene salida a internet. Aloja el proxy y los servidores web.
-* **Subred privada:** Está totalmente aislada de internet. Aquí he metido el servidor LDAP por motivos de seguridad, para que nadie desde fuera pueda atacarlo directamente.
-
-
-## 2. Dominio y Seguridad (HTTPS)
-Para no tener que acceder a través de una dirección IP, he usado DuckDNS para configurar el dominio dinámico `imad-proyecto-redes.duckdns.org`.
-
-Además, era obligatorio no usar certificados autofirmados, así que he generado e instalado certificados reales de Let's Encrypt. De esta forma, todo el tráfico de la web va por el puerto 443 (HTTPS) y aparece el candado verde en el navegador. 
-
-Para demostrar que la conexión es segura y no se pueden robar las contraseñas, en el vídeo realizo un snifado de red con `tcpdump` donde se ve que las cabeceras y el tráfico están totalmente cifrados.
-
-![texto alternativo descriptivo](Evidencias/captura_snifado_https.PNG)
-
-## 3. Servidores Web y Sitios Virtuales
-En lugar de instalar los servicios a mano, he usado `docker-compose` para levantar los contenedores. Como servidor principal he elegido Apache, ya que sus módulos me permiten configurarlo fácilmente como Proxy Inverso.
-
-He creado varios sitios virtuales bajo el mismo dominio. Apache hace de "puerta de entrada" y redirige el tráfico dependiendo de la ruta que pongas en el navegador:
-* Si entras a `/php`, te manda al contenedor que procesa código PHP.
-* Si entras a `/tomcat`, te manda al contenedor con el entorno Java.
-* El diseño de las webs es muy simple (muestran la hora y la versión) porque me he centrado en que el enrutamiento de la infraestructura funcione perfectamente, más que en la decoración.
-
-
-## 4. Autenticación y Control de Acceso (LDAP)
-He protegido la ruta `/privado` del servidor. Cuando intentas entrar, Apache te frena y te pide un usuario y una contraseña.
-
-Para validar esas credenciales, Apache se comunica por la red interna con el contenedor de OpenLDAP que tenemos en la máquina de la subred privada. Si pones un usuario que existe en la base de datos (por ejemplo, "susana"), el servidor te da acceso.
-
-## 5. Monitorización del Servicio
-Para comprobar que los contenedores están funcionando y no se han caído, he integrado Prometheus y Grafana.
-Prometheus va recogiendo los datos de los contenedores por detrás, y Grafana nos los muestra en un panel visual. He configurado gráficos donde se puede ver en tiempo real cómo suben las peticiones de red cuando interactuamos con el servidor.
-
-![texto alternativo descriptivo](Evidencias/captura_grafana.PNG)
-
----
-
-## Vídeo Demostrativo
-En el siguiente enlace dejo el vídeo donde explico paso a paso el funcionamiento de todo este montaje, probando todas las casuísticas que se pedían en la práctica:
-
-**[[PONER AQUÍ EL ENLACE AL VÍDEO](https://drive.google.com/file/d/1pg5p7hHuqL6YbKSF11ewI2rsxrvGCFjw/view?usp=sharing)]**
-
-## Vídeo respondiendo a las preguntas del criterio a
-En el primer video se me ha olvidado contestar las pregundas del criterio a, asi que te adjunto otro cortito respondiendo a las preguntas:
-**[[PONER AQUÍ EL ENLACE AL VÍDEO](https://drive.google.com/file/d/12hV3QgfQ4Hq_wwpJJAssn_ETvhA7z5g-/view?usp=sharing)]**
