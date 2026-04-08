@@ -11,6 +11,11 @@ Creamos los archivos YAML para cada servicio:
 * **NGINX (frontend)**
 * **ConfigMap con el código de la aplicación**
 
+Aplicamos la configuracion con:
+```bash
+kubectl apply -f archivo.yml
+```
+
 Al principio tenia pensado subir el proyecto charneco donde habiamos creado una pagina web en localhost (XAMPP) con mysql y php, pero por problemas del pasado perdi dicha practica, pero aun asi he realizado una version simplificada del proyecto.
 Y mas adelante si hay tiempo me gustaria aplicarlo a mi proyecto de TFG que estoy realizacion con Hector
 
@@ -22,7 +27,12 @@ Con tu documentacion del proceso de crear un cluster en AWS con nodos documentad
 aws eks update-kubeconfig --region us-east-1 --name nombre_De_tu_cluster
 ```
 
-Además, era obligatorio no usar certificados autofirmados, así que he generado e instalado certificados reales de Let's Encrypt. De esta forma, todo el tráfico de la web va por el puerto 443 (HTTPS) y aparece el candado verde en el navegador. 
+Una vez realizada la conexion con mi cluster, procedemos a subir los archivos yaml como en localhost mediante el mismo comando que en la parte 1
+```bash
+kubectl apply -f archivo.yml
+```
+### Problema volumen
+En su momento tambien se hablo en clase, a la hora de crear un volumen con una practica de las tuyas tuvimos problemas ya que no podiamos crear volumenes persistentes(se queda en pending), e investigando un poco era debido a que AWS no te da permisos para hacerlo, por lo que para la practica no es tan necesario, pero en un entorno real si lo es
 
 Para demostrar que la conexión es segura y no se pueden robar las contraseñas, en el vídeo realizo un snifado de red con `tcpdump` donde se ve que las cabeceras y el tráfico están totalmente cifrados.
 
