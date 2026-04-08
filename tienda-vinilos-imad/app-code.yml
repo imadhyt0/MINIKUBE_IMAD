@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-code
+data:
+  index.php: |
+    <?php
+    $host = 'mysql';
+    $user = 'root';
+    $pass = 'password';
+    $db = 'vinilos_db';
+
+    $conn = new mysqli($host, $user, $pass, $db);
+    
+    echo "<div style='font-family: sans-serif; max-width: 600px; margin: 50px auto; text-align: center;'>";
+    echo "<h1>💿 Tienda de Vinilos Vintage 💿</h1>";
+
+    if ($conn->connect_error) {
+        die("<h3 style='color:red;'>❌ Error de conexión: " . $conn->connect_error . "</h3>");
+    }
+
+    // 1. Crear tabla si no existe
+    $conn->query("CREATE TABLE IF NOT EXISTS discos (id INT AUTO_INCREMENT PRIMARY KEY, titulo VARCHAR(255), artista VARCHAR(255))");
+
+    // 2. Procesar nuevo vinilo si se envía el formulario
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['titulo']) && !empty($_POST['artista'])) {
+        $stmt = $conn->prepare("INSERT INTO discos (titulo, artista) VALUES (?, ?)");
+        $stmt->bind_param("ss", $_POST['titulo'], $_POST['artista']);
+        $stmt->execute();
+        echo "<p style='color:green;'>✅ ¡Vinilo añadido al inventario!</p>";
+    }
+
+    // 3. Formulario para añadir discos
+    echo "<form method='POST' style='background: #f4f4f4; padding: 20px; border-radius: 8px;'>";
+    echo "<h3>Añadir nuevo disco</h3>";
+    echo "<input type='text' name='titulo' placeholder='Título del disco' required style='margin: 5px; padding: 5px;'><br>";
+    echo "<input type='text' name='artista' placeholder='Artista o Grupo' required style='margin: 5px; padding: 5px;'><br>";
+    echo "<input type='submit' value='Guardar en MySQL' style='margin-top: 10px; padding: 8px 15px; background: black; color: white; border: none; border-radius: 4px; cursor: pointer;'>";
+    echo "</form>";
+
+    // 4. Mostrar inventario
+    echo "<h3>📦 Inventario Actual:</h3>";
+    $result = $conn->query("SELECT * FROM discos");
+    if ($result->num_rows > 0) {
+        echo "<ul style='text-align: left;'>";
+        while($row = $result->fetch_assoc()) {
+            echo "<li><strong>" . htmlspecialchars($row["titulo"]) . "</strong> - " . htmlspecialchars($row["artista"]) . "</li>";
+        }
+        echo "</ul>";
+    } else {
+        echo "<p>El inventario está vacío.</p>";
+    }
+    
+    echo "</div>";
+    ?>

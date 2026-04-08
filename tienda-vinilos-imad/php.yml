@@ -1,0 +1,39 @@
+# 1. El contenedor de PHP (Deployment)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php
+spec:
+  selector:
+    matchLabels:
+      app: php
+  template:
+    metadata:
+      labels:
+        app: php
+    spec:
+      containers:
+      - name: php
+        image: php:8.2-fpm
+        # Truco: Instalamos la extensión mysqli al vuelo antes de arrancar para no tener que crear un Dockerfile
+        command: ["/bin/sh", "-c", "docker-php-ext-install mysqli && docker-php-entrypoint php-fpm"]
+        ports:
+        - containerPort: 9000
+        volumeMounts:
+        - name: codigo-web
+          mountPath: /var/www/html
+      volumes:
+      - name: codigo-web
+        configMap:
+          name: app-code
+---
+# 2. El enchufe interno para NGINX (Service)
+apiVersion: v1
+kind: Service
+metadata:
+  name: php
+spec:
+  ports:
+  - port: 9000
+  selector:
+    app: php

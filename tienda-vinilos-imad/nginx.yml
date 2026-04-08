@@ -1,0 +1,50 @@
+# 1. El contenedor NGINX (Deployment)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  selector:
+    matchLabels:
+      app: nginx-tienda
+  template:
+    metadata:
+      labels:
+        app: nginx-tienda
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 443
+        volumeMounts:
+        - name: config-vol
+          mountPath: /etc/nginx/conf.d
+        - name: certs-vol
+          mountPath: /etc/nginx/ssl
+          readOnly: true
+        - name: codigo-web
+          mountPath: /var/www/html
+      volumes:
+      - name: config-vol
+        configMap:
+          name: nginx-config
+      - name: certs-vol
+        secret:
+          secretName: nginx-tls
+      - name: codigo-web
+        configMap:
+          name: app-code
+---
+# 2. El enchufe hacia el exterior
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 443
+    targetPort: 443
+  selector:
+    app: nginx-tienda
