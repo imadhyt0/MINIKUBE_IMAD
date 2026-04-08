@@ -15,8 +15,11 @@ Al principio tenia pensado subir el proyecto charneco donde habiamos creado una 
 Y mas adelante si hay tiempo me gustaria aplicarlo a mi proyecto de TFG que estoy realizacion con Hector
 
 
-## 2. Dominio y Seguridad (HTTPS)
-Para no tener que acceder a través de una dirección IP, he usado DuckDNS para configurar el dominio dinámico `imad-proyecto-redes.duckdns.org`.
+## 2. Paso a AWS EKS
+Una vez funcionando en Minikube, creamos el clúster en AWS EKS.
+Con tu documentacion del proceso de crear un cluster en AWS con nodos documentada ha sido muy sencillo realizar esa parte del proceso y ya una vez que han sido creados los nodos solo faltaba la parte de poner los credenciales de aws y el siguiente comando
+```bash
+aws eks update-kubeconfig --region us-east-1 --name nombre_De_tu_cluster
 
 Además, era obligatorio no usar certificados autofirmados, así que he generado e instalado certificados reales de Let's Encrypt. De esta forma, todo el tráfico de la web va por el puerto 443 (HTTPS) y aparece el candado verde en el navegador. 
 
